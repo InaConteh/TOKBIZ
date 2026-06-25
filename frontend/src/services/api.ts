@@ -142,6 +142,143 @@ class ApiClient {
     return this.client.get('/analytics/inventory-status')
   }
 
+  // Supplier endpoints
+  getSuppliers() {
+    return this.client.get('/suppliers')
+  }
+
+  createSupplier(data: any) {
+    return this.client.post('/suppliers', data)
+  }
+
+  getSupplier(id: number) {
+    return this.client.get(`/suppliers/${id}`)
+  }
+
+  updateSupplier(id: number, data: any) {
+    return this.client.put(`/suppliers/${id}`, data)
+  }
+
+  deleteSupplier(id: number) {
+    return this.client.delete(`/suppliers/${id}`)
+  }
+
+  // Expense endpoints
+  getExpenses() {
+    return this.client.get('/expenses')
+  }
+
+  createExpense(data: any) {
+    return this.client.post('/expenses', data)
+  }
+
+  getExpense(id: number) {
+    return this.client.get(`/expenses/${id}`)
+  }
+
+  updateExpense(id: number, data: any) {
+    return this.client.put(`/expenses/${id}`, data)
+  }
+
+  deleteExpense(id: number) {
+    return this.client.delete(`/expenses/${id}`)
+  }
+
+  // Payment transaction endpoints
+  getPaymentTransactions() {
+    return this.client.get('/payments')
+  }
+
+  createPaymentTransaction(data: any) {
+    return this.client.post('/payments', data)
+  }
+
+  getPaymentTransaction(id: number) {
+    return this.client.get(`/payments/${id}`)
+  }
+
+  // Invoice endpoints
+  getInvoices() {
+    return this.client.get('/invoices')
+  }
+
+  createInvoice(data: any) {
+    return this.client.post('/invoices', data)
+  }
+
+  getInvoice(id: number) {
+    return this.client.get(`/invoices/${id}`)
+  }
+
+  updateInvoice(id: number, data: any) {
+    return this.client.put(`/invoices/${id}`, data)
+  }
+
+  deleteInvoice(id: number) {
+    return this.client.delete(`/invoices/${id}`)
+  }
+
+  // Notification endpoints
+  getNotifications() {
+    return this.client.get('/notifications')
+  }
+
+  // Exchange rate endpoints
+  getExchangeRates() {
+    return this.client.get('/exchange-rates')
+  }
+
+  createExchangeRate(data: any) {
+    return this.client.post('/exchange-rates', data)
+  }
+
+  // Payment channel endpoints
+  getPaymentChannels() {
+    return this.client.get('/payment-channels')
+  }
+
+  getMarketplaceListings() {
+    return this.client.get('/marketplace')
+  }
+
+  createMarketplaceListing(data: any) {
+    return this.client.post('/marketplace', data)
+  }
+
+  getPartnerServices() {
+    return this.client.get('/partners')
+  }
+
+  getRecommendations() {
+    return this.client.get('/recommendations')
+  }
+
+  getTrustScores() {
+    return this.client.get('/trust')
+  }
+
+  getDeveloperApi() {
+    return this.client.get('/developer-api')
+  }
+
+  // Recurring expense endpoints
+  getRecurringExpenses() {
+    return this.client.get('/recurring-expenses')
+  }
+
+  createRecurringExpense(data: any) {
+    return this.client.post('/recurring-expenses', data)
+  }
+
+  // Role and permission endpoints
+  getRoles() {
+    return this.client.get('/roles')
+  }
+
+  getPermissions() {
+    return this.client.get('/roles/permissions')
+  }
+
   // AI endpoints
   getSalesInsights(data: any) {
     return this.client.post('/ai/sales-insights', data)

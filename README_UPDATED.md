@@ -124,6 +124,13 @@ See [SETUP.md](SETUP.md#api-endpoints) for complete API endpoint list.
 - Expense Tracking
 - Multi-currency Support
 
+### Phase 4: Integration, Growth & Deployment
+- Payment gateway & reconciliation
+- Supplier invoice workflows
+- Expense approvals & cash flow reporting
+- Notifications & risk alerts
+- Production deployment readiness
+
 ## Testing
 
 ### Backend

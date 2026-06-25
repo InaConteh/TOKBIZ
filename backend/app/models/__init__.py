@@ -222,3 +222,263 @@ class Payment(db.Model, TimestampMixin):
             "date": self.date.isoformat() if self.date else None,
             **self.timestamp_dict(),
         }
+
+
+class Supplier(db.Model, TimestampMixin):
+    __tablename__ = "suppliers"
+
+    id = db.Column(db.Integer, primary_key=True)
+    business_id = db.Column(db.Integer, db.ForeignKey("businesses.id"), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    contact_name = db.Column(db.String(255), nullable=True)
+    email = db.Column(db.String(255), nullable=True)
+    phone = db.Column(db.String(50), nullable=True)
+    address = db.Column(db.String(512), nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    currency = db.Column(db.String(10), nullable=False, default="USD")
+
+    business = db.relationship(
+        "Business",
+        backref="suppliers",
+        lazy=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "business_id": self.business_id,
+            "name": self.name,
+            "contact_name": self.contact_name,
+            "email": self.email,
+            "phone": self.phone,
+            "address": self.address,
+            "notes": self.notes,
+            "currency": self.currency,
+            **self.timestamp_dict(),
+        }
+
+
+class Expense(db.Model, TimestampMixin):
+    __tablename__ = "expenses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    business_id = db.Column(db.Integer, db.ForeignKey("businesses.id"), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey("suppliers.id"), nullable=True)
+    description = db.Column(db.String(512), nullable=False)
+    category = db.Column(db.String(128), nullable=True)
+    amount = db.Column(db.Float, nullable=False, default=0.0)
+    currency = db.Column(db.String(10), nullable=False, default="USD")
+    expense_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    paid = db.Column(db.Boolean, nullable=False, default=False)
+
+    business = db.relationship(
+        "Business",
+        backref="expenses",
+        lazy=True,
+    )
+    supplier = db.relationship(
+        "Supplier",
+        lazy=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "business_id": self.business_id,
+            "supplier_id": self.supplier_id,
+            "description": self.description,
+            "category": self.category,
+            "amount": self.amount,
+            "currency": self.currency,
+            "expense_date": self.expense_date.isoformat() if self.expense_date else None,
+            "paid": self.paid,
+            **self.timestamp_dict(),
+        }
+
+
+class Invoice(db.Model, TimestampMixin):
+    __tablename__ = "invoices"
+
+    id = db.Column(db.Integer, primary_key=True)
+    business_id = db.Column(db.Integer, db.ForeignKey("businesses.id"), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey("suppliers.id"), nullable=False)
+    description = db.Column(db.String(512), nullable=False)
+    amount = db.Column(db.Float, nullable=False, default=0.0)
+    currency = db.Column(db.String(10), nullable=False, default="USD")
+    due_date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    status = db.Column(db.String(32), nullable=False, default="pending")
+    approved = db.Column(db.Boolean, nullable=False, default=False)
+    paid = db.Column(db.Boolean, nullable=False, default=False)
+
+    business = db.relationship(
+        "Business",
+        backref="invoices",
+        lazy=True,
+    )
+    supplier = db.relationship(
+        "Supplier",
+        lazy=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "business_id": self.business_id,
+            "supplier_id": self.supplier_id,
+            "description": self.description,
+            "amount": self.amount,
+            "currency": self.currency,
+            "due_date": self.due_date.isoformat() if self.due_date else None,
+            "status": self.status,
+            "approved": self.approved,
+            "paid": self.paid,
+            **self.timestamp_dict(),
+        }
+
+
+class ExchangeRate(db.Model, TimestampMixin):
+    __tablename__ = "exchange_rates"
+
+    id = db.Column(db.Integer, primary_key=True)
+    base_currency = db.Column(db.String(10), nullable=False)
+    target_currency = db.Column(db.String(10), nullable=False)
+    rate = db.Column(db.Float, nullable=False, default=0.0)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "base_currency": self.base_currency,
+            "target_currency": self.target_currency,
+            "rate": self.rate,
+            **self.timestamp_dict(),
+        }
+
+
+class RecurringExpense(db.Model, TimestampMixin):
+    __tablename__ = "recurring_expenses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    business_id = db.Column(db.Integer, db.ForeignKey("businesses.id"), nullable=False)
+    description = db.Column(db.String(512), nullable=False)
+    amount = db.Column(db.Float, nullable=False, default=0.0)
+    currency = db.Column(db.String(10), nullable=False, default="USD")
+    frequency = db.Column(db.String(64), nullable=False)
+    next_due_date = db.Column(db.Date, nullable=False)
+    active = db.Column(db.Boolean, nullable=False, default=True)
+
+    business = db.relationship(
+        "Business",
+        backref="recurring_expenses",
+        lazy=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "business_id": self.business_id,
+            "description": self.description,
+            "amount": self.amount,
+            "currency": self.currency,
+            "frequency": self.frequency,
+            "next_due_date": self.next_due_date.isoformat() if self.next_due_date else None,
+            "active": self.active,
+            **self.timestamp_dict(),
+        }
+
+
+class Role(db.Model, TimestampMixin):
+    __tablename__ = "roles"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    description = db.Column(db.String(255), nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            **self.timestamp_dict(),
+        }
+
+
+class Permission(db.Model, TimestampMixin):
+    __tablename__ = "permissions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    description = db.Column(db.String(255), nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            **self.timestamp_dict(),
+        }
+
+
+class MarketplaceListing(db.Model, TimestampMixin):
+    __tablename__ = "marketplace_listings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    business_id = db.Column(db.Integer, db.ForeignKey("businesses.id"), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(128), nullable=True)
+    price = db.Column(db.Float, nullable=False, default=0.0)
+    active = db.Column(db.Boolean, nullable=False, default=True)
+
+    business = db.relationship(
+        "Business",
+        backref="marketplace_listings",
+        lazy=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "business_id": self.business_id,
+            "title": self.title,
+            "description": self.description,
+            "category": self.category,
+            "price": self.price,
+            "active": self.active,
+            **self.timestamp_dict(),
+        }
+
+
+class PaymentTransaction(db.Model, TimestampMixin):
+    __tablename__ = "payment_transactions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    business_id = db.Column(db.Integer, db.ForeignKey("businesses.id"), nullable=False)
+    target_type = db.Column(db.String(32), nullable=False)
+    target_id = db.Column(db.Integer, nullable=True)
+    amount = db.Column(db.Float, nullable=False, default=0.0)
+    currency = db.Column(db.String(10), nullable=False, default="USD")
+    gateway = db.Column(db.String(64), nullable=False, default="manual")
+    status = db.Column(db.String(32), nullable=False, default="completed")
+    transaction_reference = db.Column(db.String(255), nullable=True)
+    description = db.Column(db.String(512), nullable=True)
+
+    business = db.relationship(
+        "Business",
+        backref="payment_transactions",
+        lazy=True,
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "business_id": self.business_id,
+            "target_type": self.target_type,
+            "target_id": self.target_id,
+            "amount": self.amount,
+            "currency": self.currency,
+            "gateway": self.gateway,
+            "status": self.status,
+            "transaction_reference": self.transaction_reference,
+            "description": self.description,
+            **self.timestamp_dict(),
+        }

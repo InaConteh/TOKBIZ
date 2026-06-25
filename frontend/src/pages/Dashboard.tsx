@@ -64,7 +64,59 @@ const Dashboard = () => {
               <p>Inventory Value: {summary.inventory_value.toFixed(2)}</p>
             </div>
           </div>
-          <div>
+          <div className="grid gap-3 sm:grid-cols-3 mb-6">
+            <a href="/suppliers" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Suppliers
+            </a>
+            <a href="/expenses" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Expenses
+            </a>
+            <a href="/payments" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Payments
+            </a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 mb-6">
+            <a href="/invoices" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Invoices
+            </a>
+            <a href="/notifications" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Notifications
+            </a>
+            <a href="/exchange-rates" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Exchange Rates
+            </a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 mb-6">
+            <a href="/payment-channels" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Payment Channels
+            </a>
+            <a href="/recurring-expenses" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Recurring Expenses
+            </a>
+            <a href="/roles" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Roles & Permissions
+            </a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 mb-6">
+            <a href="/marketplace" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Marketplace
+            </a>
+            <a href="/partners" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Partners
+            </a>
+            <a href="/recommendations" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Recommendations
+            </a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 mb-6">
+            <a href="/trust" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Trust Scores
+            </a>
+            <a href="/developer-api" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
+              Developer API
+            </a>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-1 mb-6">
             <a
               href="/ai"
               className="rounded bg-indigo-600 px-4 py-2 text-white"
