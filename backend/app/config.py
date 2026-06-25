@@ -10,7 +10,7 @@ class Config:
     TESTING = False
     
     # JWT
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production-must-be-long-enough")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     
@@ -31,7 +31,7 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_ECHO = True
     
     # JWT
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-key")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-key-is-also-too-short-usually")
 
 
 class TestingConfig(Config):
@@ -43,7 +43,7 @@ class TestingConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT
-    JWT_SECRET_KEY = "test-secret-key"
+    JWT_SECRET_KEY = "test-secret-key-that-is-at-least-32-characters-long-for-security"
 
 
 class ProductionConfig(Config):
