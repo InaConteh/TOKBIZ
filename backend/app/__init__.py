@@ -36,6 +36,9 @@ def create_app(config_name=None):
     db.init_app(app)
     jwt.init_app(app)
     CORS(app)
+
+    # Import models so SQLAlchemy can create tables
+    from app import models  # noqa: F401
     
     # Register blueprints
     with app.app_context():
