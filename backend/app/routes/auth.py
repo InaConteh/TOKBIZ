@@ -16,8 +16,8 @@ auth_bp = Blueprint("auth", __name__)
 
 
 def make_tokens(user_id):
-    access_token = create_access_token(identity=user_id)
-    refresh_token = create_refresh_token(identity=user_id)
+    access_token = create_access_token(identity=str(user_id))
+    refresh_token = create_refresh_token(identity=str(user_id))
     return access_token, refresh_token
 
 
@@ -78,6 +78,6 @@ def login():
 @jwt_required(refresh=True)
 def refresh():
     """Refresh JWT token"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     access_token = create_access_token(identity=user_id)
     return {"message": "Token refreshed.", "access_token": access_token}, 200

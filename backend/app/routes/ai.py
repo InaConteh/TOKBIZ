@@ -51,7 +51,7 @@ def _build_business_context(user_id):
 @jwt_required()
 def get_sales_insights():
     """Get AI sales insights"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     _, sales, products, _, _ = _build_business_context(user_id)
 
     total_sales = sum(sale.total_amount for sale in sales)
@@ -77,7 +77,7 @@ def get_sales_insights():
 @jwt_required()
 def get_debt_risks():
     """Get AI debt risk analysis"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     _, _, _, debtors, _ = _build_business_context(user_id)
 
     if not debtors:
@@ -99,7 +99,7 @@ def get_debt_risks():
 @jwt_required()
 def get_inventory_forecast():
     """Get AI inventory forecast"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     _, sales, products, _, _ = _build_business_context(user_id)
 
     if not products:
@@ -123,7 +123,7 @@ def get_inventory_forecast():
 @jwt_required()
 def get_health_score():
     """Get business health score"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     businesses, sales, products, debtors, _ = _build_business_context(user_id)
 
     total_revenue = sum(sale.total_amount for sale in sales)

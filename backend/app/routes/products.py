@@ -12,7 +12,7 @@ products_bp = Blueprint("products", __name__)
 @jwt_required()
 def manage_products():
     """List and create products"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     if request.method == "POST":
         payload = request.get_json() or {}

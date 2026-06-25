@@ -14,7 +14,7 @@ analytics_bp = Blueprint("analytics", __name__)
 @jwt_required()
 def get_summary():
     """Get analytics summary"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     businesses = Business.query.filter_by(owner_id=user_id).all()
     business_ids = [business.id for business in businesses]
@@ -42,7 +42,7 @@ def get_summary():
 @jwt_required()
 def get_sales_trends():
     """Get sales trends"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     business_ids = [b.id for b in Business.query.filter_by(owner_id=user_id).all()]
     sales = Sale.query.filter(Sale.business_id.in_(business_ids)).all()
 
@@ -59,7 +59,7 @@ def get_sales_trends():
 @jwt_required()
 def get_top_products():
     """Get top products"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     business_ids = [b.id for b in Business.query.filter_by(owner_id=user_id).all()]
     sale_items = SaleItem.query.join(Sale).filter(Sale.business_id.in_(business_ids)).all()
 
@@ -89,7 +89,7 @@ def get_top_products():
 @jwt_required()
 def get_debt_summary():
     """Get debt summary"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     debtors = Debtor.query.join(Business).filter(Business.owner_id == user_id).all()
 
     total_debt = sum(debtor.amount_owed for debtor in debtors)
@@ -111,7 +111,7 @@ def get_debt_summary():
 @jwt_required()
 def get_inventory_status():
     """Get inventory status"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     products = Product.query.join(Business).filter(Business.owner_id == user_id).all()
 
     low_stock = [product.to_dict() for product in products if product.quantity <= 5]

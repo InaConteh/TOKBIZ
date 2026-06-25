@@ -14,7 +14,7 @@ sales_bp = Blueprint("sales", __name__)
 @jwt_required()
 def manage_sales():
     """List and create sales"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     if request.method == "POST":
         payload = request.get_json() or {}

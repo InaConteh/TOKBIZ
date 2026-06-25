@@ -14,7 +14,7 @@ debtors_bp = Blueprint("debtors", __name__)
 @jwt_required()
 def manage_debtors():
     """List and create debtors"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
 
     if request.method == "POST":
         payload = request.get_json() or {}
@@ -72,7 +72,7 @@ def debtor_details(debtor_id):
 @jwt_required()
 def record_payment(debtor_id):
     """Record payment for debtor"""
-    user_id = get_jwt_identity()
+    user_id = int(get_jwt_identity())
     debtor = Debtor.query.get(debtor_id)
     if not debtor or debtor.business.owner_id != user_id:
         return {"message": "Debtor not found."}, 404
