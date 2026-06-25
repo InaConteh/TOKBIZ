@@ -1,37 +1,14 @@
 """AI Business Assistant routes"""
-import os
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
-import openai
-from flask import Blueprint, request
+from flask import Blueprint
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from app.models import Business, Debtor, Product, Sale, SaleItem
+from app.services.ai_service import AiService
 
 ai_bp = Blueprint("ai", __name__)
-
-
-def openai_response(prompt: str) -> str:
-    api_key = os.getenv("OPENAI_API_KEY")
-    model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    if not api_key:
-        return prompt
-
-    openai.api_key = api_key
-    try:
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=[
-                {"role": "system", "content": "You are an AI assistant for business analytics and forecasting."},
-                {"role": "user", "content": prompt},
-            ],
-            temperature=0.7,
-            max_tokens=450,
-        )
-        return response.choices[0].message.content.strip()
-    except Exception as exc:
-        return f"Unable to call AI service: {exc}"
 
 
 def _build_business_context(user_id):
@@ -49,15 +26,19 @@ def _build_business_context(user_id):
 def get_sales_insights():
     """Get AI sales insights"""
     user_id = get_jwt_identity()
-    _, sales, products, _, _ = _build_business_context(user_id)
+    _, sales, _, _, sale_items = _build_business_context(user_id)
 
     total_sales = sum(sale.total_amount for sale in sales)
+
+    # Use timedelta for safe date calculation
+    three_months_ago = datetime.now(timezone.utc) - timedelta(days=90)
+
     quarter_sales = sum(
         sale.total_amount for sale in sales
-        if sale.date >= datetime.utcnow().replace(month=max(1, datetime.utcnow().month - 3))
+        if sale.date >= three_months_ago.replace(tzinfo=None)
     )
     popular_products = Counter()
-    for item in SaleItem.query.join(Sale).filter(Sale.business_id.in_([b.id for b in Business.query.filter_by(owner_id=user_id).all()])).all():
+    for item in sale_items:
         popular_products[item.product.name] += item.quantity
 
     prompt = (
@@ -67,7 +48,7 @@ def get_sales_insights():
         f"Please provide three actionable insights to improve sales and inventory turnover."
     )
 
-    return {"insights": openai_response(prompt)}, 200
+    return {"insights": AiService.get_response(prompt)}, 200
 
 
 @ai_bp.route("/debt-risks", methods=["POST"])
@@ -89,7 +70,7 @@ def get_debt_risks():
         "Recommend three actions to reduce credit risk and improve collections."
     )
 
-    return {"risks": openai_response(prompt)}, 200
+    return {"risks": AiService.get_response(prompt)}, 200
 
 
 @ai_bp.route("/inventory-forecast", methods=["POST"])
@@ -97,15 +78,16 @@ def get_debt_risks():
 def get_inventory_forecast():
     """Get AI inventory forecast"""
     user_id = get_jwt_identity()
-    _, sales, products, _, _ = _build_business_context(user_id)
+    _, _, products, _, sale_items = _build_business_context(user_id)
 
     if not products:
         return {"forecast": "No products available to forecast."}, 200
 
+    three_months_ago = datetime.now(timezone.utc) - timedelta(days=90)
     demand = Counter()
-    recent_sales = [item for item in SaleItem.query.join(Sale).filter(Sale.business_id.in_([b.id for b in Business.query.filter_by(owner_id=user_id).all()])).all() if item.sale.date >= datetime.utcnow().replace(month=max(1, datetime.utcnow().month - 3))]
-    for item in recent_sales:
-        demand[item.product.name] += item.quantity
+    for item in sale_items:
+        if item.sale.date >= three_months_ago.replace(tzinfo=None):
+            demand[item.product.name] += item.quantity
 
     prompt = (
         f"Your product stock levels: {', '.join([f'{product.name}({product.quantity})' for product in products])}. "
@@ -113,7 +95,7 @@ def get_inventory_forecast():
         "Forecast inventory needs for the next 30 days and list three products to reorder soon."
     )
 
-    return {"forecast": openai_response(prompt)}, 200
+    return {"forecast": AiService.get_response(prompt)}, 200
 
 
 @ai_bp.route("/health-score", methods=["POST"])
@@ -134,4 +116,4 @@ def get_health_score():
         "Provide a 0-100 score and a short explanation of the score."
     )
 
-    return {"health_score": openai_response(prompt)}, 200
+    return {"health_score": AiService.get_response(prompt)}, 200
