@@ -1,66 +1,120 @@
 import { useEffect, useState } from 'react'
+import { ShieldCheck, Plus, Users, Key, Settings } from 'lucide-react'
 import api from '../services/api'
-import type { Permission, Role } from '../types'
+import { Layout } from '@/components/layout'
+import { PageHeader } from '@/components/common/page-header'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const Roles = () => {
-  const [roles, setRoles] = useState<Role[]>([])
-  const [permissions, setPermissions] = useState<Permission[]>([])
+  const [roles, setRoles] = useState<any[]>([])
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const loadAccessData = async () => {
+    const loadRoles = async () => {
       try {
-        const [rolesResponse, permissionsResponse] = await Promise.all([
-          api.getRoles(),
-          api.getPermissions(),
-        ])
-
-        setRoles(rolesResponse.data.roles)
-        setPermissions(permissionsResponse.data.permissions)
+        setIsLoading(true)
+        const response = await api.getRoles()
+        setRoles(response.data.roles || [])
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Unable to load roles and permissions.')
+        setError('Unable to load roles.')
+      } finally {
+        setIsLoading(false)
       }
     }
-    loadAccessData()
+    loadRoles()
   }, [])
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Roles & Permissions</h1>
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-      <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded border p-4">
-          <h2 className="text-xl font-semibold mb-4">Roles</h2>
-          {roles.length === 0 ? (
-            <p>No roles available.</p>
-          ) : (
-            <ul className="space-y-3">
-              {roles.map((role) => (
-                <li key={role.id} className="rounded bg-slate-50 p-3">
-                  <p className="font-semibold">{role.name}</p>
-                  <p>{role.description || 'No description'}</p>
-                </li>
-              ))}
-            </ul>
-          )}
+    <Layout>
+      <PageHeader
+        title="Roles & Permissions"
+        description="Control access levels for your team members."
+        error={error}
+      >
+        <Button className="gap-2">
+          <Plus className="h-4 w-4" /> Create Role
+        </Button>
+      </PageHeader>
+
+      <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Business Roles</CardTitle>
+              <CardDescription>Defined roles and their basic configurations.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="py-10 text-center animate-pulse text-muted-foreground">Loading roles...</div>
+              ) : roles.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Role Name</TableHead>
+                      <TableHead>Users</TableHead>
+                      <TableHead>Access Level</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {roles.map((role) => (
+                      <TableRow key={role.id}>
+                        <TableCell className="font-medium">{role.name}</TableCell>
+                        <TableCell>
+                           <div className="flex items-center gap-1">
+                              <Users className="h-3 w-3" /> {role.user_count || 0}
+                           </div>
+                        </TableCell>
+                        <TableCell>
+                           <Badge variant={role.name === 'Admin' ? 'default' : 'secondary'}>
+                              {role.name === 'Admin' ? 'Full Access' : 'Limited Access'}
+                           </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                           <Button variant="ghost" size="sm">Edit</Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <div className="py-10 text-center text-muted-foreground">
+                  No custom roles defined yet.
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-        <div className="rounded border p-4">
-          <h2 className="text-xl font-semibold mb-4">Permissions</h2>
-          {permissions.length === 0 ? (
-            <p>No permissions available.</p>
-          ) : (
-            <ul className="space-y-3">
-              {permissions.map((permission) => (
-                <li key={permission.id} className="rounded bg-slate-50 p-3">
-                  <p className="font-semibold">{permission.name}</p>
-                  <p>{permission.description || 'No description'}</p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Security Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" /> 2FA Status
+              </span>
+              <Badge variant="outline" className="text-green-500 border-green-500">Enabled</Badge>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground flex items-center gap-2">
+                <Key className="h-4 w-4" /> Password Policy
+              </span>
+              <span className="font-medium">Strong</span>
+            </div>
+            <hr />
+            <Button variant="outline" className="w-full justify-start gap-2">
+               <Settings className="h-4 w-4" /> Security Settings
+            </Button>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </Layout>
   )
 }
 

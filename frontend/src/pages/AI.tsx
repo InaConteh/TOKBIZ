@@ -1,5 +1,10 @@
 import { useState } from 'react'
+import { Sparkles, BrainCircuit, AlertCircle, TrendingUp, Wallet, Package, HeartPulse } from 'lucide-react'
 import api from '../services/api'
+import { Layout } from '@/components/layout'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 
 const AI = () => {
   const [insight, setInsight] = useState('')
@@ -30,55 +35,94 @@ const AI = () => {
     }
   }
 
+  const options = [
+    { id: 'sales', label: 'Sales Insights', icon: TrendingUp },
+    { id: 'debt', label: 'Debt Risk', icon: Wallet },
+    { id: 'inventory', label: 'Inventory Forecast', icon: Package },
+    { id: 'health', label: 'Health Score', icon: HeartPulse },
+  ]
+
   return (
-    <div className="max-w-3xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">AI Business Assistant</h1>
-      <div className="grid gap-4 sm:grid-cols-2 mb-6">
-        <button
-          type="button"
-          className={`rounded px-4 py-2 ${type === 'sales' ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-800'}`}
-          onClick={() => setType('sales')}
-        >
-          Sales Insights
-        </button>
-        <button
-          type="button"
-          className={`rounded px-4 py-2 ${type === 'debt' ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-800'}`}
-          onClick={() => setType('debt')}
-        >
-          Debt Risk
-        </button>
-        <button
-          type="button"
-          className={`rounded px-4 py-2 ${type === 'inventory' ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-800'}`}
-          onClick={() => setType('inventory')}
-        >
-          Inventory Forecast
-        </button>
-        <button
-          type="button"
-          className={`rounded px-4 py-2 ${type === 'health' ? 'bg-indigo-700 text-white' : 'bg-slate-100 text-slate-800'}`}
-          onClick={() => setType('health')}
-        >
-          Health Score
-        </button>
-      </div>
-      <button
-        type="button"
-        onClick={handleRun}
-        disabled={loading}
-        className="rounded bg-slate-900 px-4 py-2 text-white"
-      >
-        {loading ? 'Running AI...' : 'Run AI Analysis'}
-      </button>
-      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-      {insight && (
-        <div className="mt-6 rounded border bg-white p-4 shadow-sm">
-          <h2 className="text-xl font-semibold mb-3">AI Output</h2>
-          <p className="whitespace-pre-line text-slate-800">{insight}</p>
+    <Layout>
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <Sparkles className="h-8 w-8 text-primary" />
+            AI Business Assistant
+          </h1>
+          <p className="text-muted-foreground">
+            Leverage advanced AI to gain deep insights into your business performance.
+          </p>
         </div>
-      )}
-    </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+          {options.map((opt) => (
+            <Card
+              key={opt.id}
+              className={`cursor-pointer transition-colors hover:bg-accent/50 ${type === opt.id ? 'border-primary bg-primary/5' : ''}`}
+              onClick={() => setType(opt.id as any)}
+            >
+              <CardHeader className="p-4 flex flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-sm font-medium">{opt.label}</CardTitle>
+                <opt.icon className={`h-4 w-4 ${type === opt.id ? 'text-primary' : 'text-muted-foreground'}`} />
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
+
+        <div className="flex justify-center">
+          <Button
+            size="lg"
+            onClick={handleRun}
+            disabled={loading}
+            className="gap-2"
+          >
+            {loading ? (
+              <BrainCircuit className="h-5 w-5 animate-spin" />
+            ) : (
+              <Sparkles className="h-5 w-5" />
+            )}
+            {loading ? 'Analyzing Data...' : 'Generate Analysis'}
+          </Button>
+        </div>
+
+        {error && (
+          <Badge variant="destructive" className="w-full py-3 px-4 gap-2 h-auto text-sm justify-center">
+            <AlertCircle className="h-4 w-4" />
+            {error}
+          </Badge>
+        )}
+
+        {insight && (
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BrainCircuit className="h-5 w-5 text-primary" />
+                AI Analysis Results
+              </CardTitle>
+              <CardDescription>
+                Based on your current business data and market trends.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-lg bg-muted p-6 text-sm md:text-base leading-relaxed whitespace-pre-line">
+                {insight}
+              </div>
+            </CardContent>
+            <CardFooter className="text-xs text-muted-foreground italic">
+              AI-generated content may contain inaccuracies. Please verify with your actual records.
+            </CardFooter>
+          </Card>
+        )}
+
+        {!insight && !loading && !error && (
+          <div className="text-center py-12 border-2 border-dashed rounded-xl">
+            <BrainCircuit className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+            <p className="text-muted-foreground">Select a category and click "Generate Analysis" to start.</p>
+          </div>
+        )}
+      </div>
+    </Layout>
   )
 }
 

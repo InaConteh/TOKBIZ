@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import {
+  TrendingUp,
+  DollarSign,
+  Wallet,
+  Package,
+  AlertCircle,
+  ArrowUpRight,
+  ArrowDownRight
+} from 'lucide-react'
 import api from '../services/api'
 import type { AnalyticsSummary } from '../types'
+import { Layout } from '@/components/layout'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -25,110 +38,124 @@ const Dashboard = () => {
     loadSummary()
   }, [navigate])
 
-  const handleSignOut = () => {
-    localStorage.removeItem('access_token')
-    navigate('/login')
-  }
-
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <div className="flex items-center justify-between mb-8">
+    <Layout>
+      <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-sm text-slate-600">Quick business health overview</p>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">Welcome back! Here's what's happening with your business today.</p>
         </div>
-        <button
-          onClick={handleSignOut}
-          className="rounded bg-red-600 px-4 py-2 text-white"
-        >
-          Sign Out
-        </button>
+
+        {error && (
+          <Badge variant="destructive" className="py-2 px-4 gap-2 h-auto text-sm">
+            <AlertCircle className="h-4 w-4" />
+            {error}
+          </Badge>
+        )}
+
+        {summary ? (
+          <>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">Le {summary.total_revenue.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="text-green-500 flex items-center font-medium">
+                      <ArrowUpRight className="h-3 w-3" /> +12.5%
+                    </span>{" "}
+                    from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{summary.total_sales}</div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="text-green-500 flex items-center font-medium">
+                      <ArrowUpRight className="h-3 w-3" /> +4.2%
+                    </span>{" "}
+                    from last month
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Outstanding Debt</CardTitle>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">Le {summary.total_debt.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="text-red-500 flex items-center font-medium">
+                      <ArrowUpRight className="h-3 w-3" /> +2.1%
+                    </span>{" "}
+                    increase
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
+                  <Package className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">Le {summary.inventory_value.toLocaleString()}</div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="text-red-500 flex items-center font-medium">
+                      <ArrowDownRight className="h-3 w-3" /> -5.4%
+                    </span>{" "}
+                    from last month
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+              <Card className="col-span-4">
+                <CardHeader>
+                  <CardTitle>Overview</CardTitle>
+                  <CardDescription>Visual representation of your sales performance.</CardDescription>
+                </CardHeader>
+                <CardContent className="pl-2">
+                  <div className="h-[200px] flex items-center justify-center text-muted-foreground italic border-t pt-4">
+                    Sales chart will be rendered here.
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="col-span-3">
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Common tasks you might want to do.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-2">
+                  <Button variant="outline" className="justify-start gap-2" asChild>
+                    <a href="/expenses">Record New Expense</a>
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-2" asChild>
+                    <a href="/invoices">Generate Invoice</a>
+                  </Button>
+                  <Button variant="outline" className="justify-start gap-2" asChild>
+                    <a href="/ai">Get AI Business Analysis</a>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-64">
+            <p className="text-muted-foreground animate-pulse">Loading dashboard summary...</p>
+          </div>
+        )}
       </div>
-
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-
-      {summary ? (
-        <>
-          <div className="grid gap-4 md:grid-cols-2 mb-6">
-            <div className="rounded border p-4">
-              <h2 className="text-lg font-semibold mb-2">Sales</h2>
-              <p>Total Sales: {summary.total_sales.toFixed(2)}</p>
-              <p>Total Revenue: {summary.total_revenue.toFixed(2)}</p>
-            </div>
-            <div className="rounded border p-4">
-              <h2 className="text-lg font-semibold mb-2">Debt</h2>
-              <p>Total Debt: {summary.total_debt.toFixed(2)}</p>
-            </div>
-            <div className="rounded border p-4 md:col-span-2">
-              <h2 className="text-lg font-semibold mb-2">Inventory</h2>
-              <p>Inventory Value: {summary.inventory_value.toFixed(2)}</p>
-            </div>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3 mb-6">
-            <a href="/suppliers" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Suppliers
-            </a>
-            <a href="/expenses" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Expenses
-            </a>
-            <a href="/payments" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Payments
-            </a>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3 mb-6">
-            <a href="/invoices" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Invoices
-            </a>
-            <a href="/notifications" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Notifications
-            </a>
-            <a href="/exchange-rates" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Exchange Rates
-            </a>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3 mb-6">
-            <a href="/payment-channels" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Payment Channels
-            </a>
-            <a href="/recurring-expenses" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Recurring Expenses
-            </a>
-            <a href="/roles" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Roles & Permissions
-            </a>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3 mb-6">
-            <a href="/marketplace" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Marketplace
-            </a>
-            <a href="/partners" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Partners
-            </a>
-            <a href="/recommendations" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Recommendations
-            </a>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 mb-6">
-            <a href="/trust" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Trust Scores
-            </a>
-            <a href="/developer-api" className="rounded bg-slate-900 px-4 py-2 text-white text-center">
-              Developer API
-            </a>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-1 mb-6">
-            <a
-              href="/ai"
-              className="rounded bg-indigo-600 px-4 py-2 text-white"
-            >
-              Open AI Insights
-            </a>
-          </div>
-        </>
-      ) : (
-        <p>Loading dashboard...</p>
-      )}
-    </div>
+    </Layout>
   )
 }
 

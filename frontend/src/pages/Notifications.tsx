@@ -1,44 +1,87 @@
 import { useEffect, useState } from 'react'
+import { Bell, Info, CheckCircle2, AlertTriangle, Clock, Trash2 } from 'lucide-react'
 import api from '../services/api'
-import type { Notification } from '../types'
+import { Layout } from '@/components/layout'
+import { PageHeader } from '@/components/common/page-header'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notifications, setNotifications] = useState<any[]>([])
   const [error, setError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadNotifications = async () => {
       try {
+        setIsLoading(true)
         const response = await api.getNotifications()
-        setNotifications(response.data.notifications)
+        setNotifications(response.data.notifications || [])
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Unable to load notifications.')
+        setError('Unable to load notifications.')
+      } finally {
+        setIsLoading(false)
       }
     }
     loadNotifications()
   }, [])
 
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'success': return <CheckCircle2 className="h-5 w-5 text-green-500" />
+      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />
+      default: return <Info className="h-5 w-5 text-blue-500" />
+    }
+  }
+
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Notifications</h1>
-      {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
-      <div className="grid gap-4">
-        {notifications.map((note) => (
-          <div key={note.type} className="rounded border p-4">
-            <h2 className="text-xl font-semibold">{note.title}</h2>
-            <p className="mb-3">{note.message}</p>
-            {note.items && note.items.length > 0 && (
-              <ul className="list-disc pl-5 space-y-1">
-                {note.items.slice(0, 5).map((item, index) => (
-                  <li key={index}>{item.description || item.name || item.customer_name || item.title || 'Item'}</li>
-                ))}
-              </ul>
-            )}
+    <Layout>
+      <PageHeader
+        title="Notifications"
+        description="Stay updated with your business activities and alerts."
+        error={error}
+      >
+        <Button variant="outline" size="sm">Mark all as read</Button>
+      </PageHeader>
+
+      <div className="max-w-3xl mx-auto space-y-4">
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map(i => <Card key={i} className="h-24 animate-pulse bg-muted" />)}
           </div>
-        ))}
-        {notifications.length === 0 && <p>No notifications at this time.</p>}
+        ) : notifications.length > 0 ? (
+          notifications.map((n) => (
+            <Card key={n.id} className={n.read ? 'opacity-70' : 'border-l-4 border-l-primary'}>
+              <CardContent className="p-4 flex items-start gap-4">
+                <div className="mt-1">{getIcon(n.type)}</div>
+                <div className="flex-1 space-y-1">
+                  <div className="flex justify-between items-start">
+                    <p className={`font-semibold ${n.read ? '' : 'text-primary'}`}>{n.title}</p>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> {n.time || 'Just now'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {n.message}
+                  </p>
+                </div>
+                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="py-20 text-center">
+              <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-20" />
+              <h3 className="text-lg font-medium">No notifications</h3>
+              <p className="text-muted-foreground">You're all caught up!</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
-    </div>
+    </Layout>
   )
 }
 
